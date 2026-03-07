@@ -53,7 +53,17 @@ public static partial class MigrationDiscovery
         {
             var current = queue.Dequeue();
 
-            foreach (var dir in Directory.EnumerateDirectories(current))
+            IEnumerable<string> subdirs;
+            try
+            {
+                subdirs = Directory.EnumerateDirectories(current);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            foreach (var dir in subdirs)
             {
                 var dirName = Path.GetFileName(dir);
                 if (dirName.Equals("Migrations", StringComparison.OrdinalIgnoreCase))

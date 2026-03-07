@@ -11,6 +11,9 @@
     <Description>Analyze EF Core migrations for risky operations before they reach production</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>efcore;migrations;database;safety;analyzer;dotnet</PackageTags>
+    <Authors>dotnet-migration-check contributors</Authors>
+    <RepositoryUrl>https://github.com/dotnet-migration-check/dotnet-migration-check</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Spectre.Console.Cli" Version="0.49.*" />

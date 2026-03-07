@@ -77,6 +77,17 @@ Options:
 
 The `--ci` flag disables color output and returns exit code 1 if any findings at or above the specified severity are detected.
 
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+```bash
+git clone https://github.com/dotnet-migration-check/dotnet-migration-check.git
+cd dotnet-migration-check
+dotnet build
+dotnet test
+```
+
 ## License
 
 MIT

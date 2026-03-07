@@ -41,11 +41,27 @@ public sealed class CheckCommand : Command<CheckCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
+        if (settings.Ci)
+            AnsiConsole.Profile.Capabilities.ColorSystem = ColorSystem.NoColors;
+
+        if (settings.Last is <= 0)
+        {
+            AnsiConsole.MarkupLine("[red]--last must be a positive number.[/]");
+            return 1;
+        }
+
+        var minSeverity = ParseSeverity(settings.Severity);
+        if (minSeverity is null)
+        {
+            AnsiConsole.MarkupLine($"[red]Unknown severity:[/] {Markup.Escape(settings.Severity)}. Use info, warning, error, or critical.");
+            return 1;
+        }
+
         var path = settings.Path ?? Directory.GetCurrentDirectory();
 
         if (!Directory.Exists(path))
         {
-            AnsiConsole.MarkupLine($"[red]Directory not found:[/] {path}");
+            AnsiConsole.MarkupLine($"[red]Directory not found:[/] {Markup.Escape(path)}");
             return 1;
         }
 
@@ -62,14 +78,21 @@ public sealed class CheckCommand : Command<CheckCommand.Settings>
 
         foreach (var migration in migrations)
         {
-            var content = File.ReadAllText(migration.FilePath);
-            var parsed = MigrationParser.Parse(content);
-            var migrationName = System.IO.Path.GetFileNameWithoutExtension(migration.FileName);
-
-            foreach (var analyzer in analyzers)
+            try
             {
-                var findings = analyzer.Analyze(migrationName, parsed.UpOperations, parsed.DownOperations);
-                allFindings.AddRange(findings);
+                var content = File.ReadAllText(migration.FilePath);
+                var parsed = MigrationParser.Parse(content);
+                var migrationName = System.IO.Path.GetFileNameWithoutExtension(migration.FileName);
+
+                foreach (var analyzer in analyzers)
+                {
+                    var findings = analyzer.Analyze(migrationName, parsed.UpOperations, parsed.DownOperations);
+                    allFindings.AddRange(findings);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Warning:[/] Could not read {Markup.Escape(migration.FileName)}: {Markup.Escape(ex.Message)}");
             }
         }
 
@@ -77,9 +100,8 @@ public sealed class CheckCommand : Command<CheckCommand.Settings>
             migrations.Select(m => (m.FileName, m.TimestampPrefix)).ToList());
         allFindings.AddRange(orderingFindings);
 
-        var minSeverity = ParseSeverity(settings.Severity);
         var filtered = allFindings
-            .Where(f => f.Rule.DefaultSeverity >= minSeverity)
+            .Where(f => f.Rule.DefaultSeverity >= minSeverity.Value)
             .ToList();
 
         var formatter = CreateFormatter(settings.Format);
@@ -108,14 +130,14 @@ public sealed class CheckCommand : Command<CheckCommand.Settings>
         return analyzers;
     }
 
-    private static Severity ParseSeverity(string value) =>
+    private static Severity? ParseSeverity(string value) =>
         value.ToLowerInvariant() switch
         {
             "info" => Models.Severity.Info,
             "warning" => Models.Severity.Warning,
             "error" => Models.Severity.Error,
             "critical" => Models.Severity.Critical,
-            _ => Models.Severity.Warning
+            _ => null
         };
 
     private static IOutputFormatter CreateFormatter(string format) =>

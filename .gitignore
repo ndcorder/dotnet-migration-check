@@ -33,6 +33,10 @@ artifacts/
 .DS_Store
 Thumbs.db
 
+## Environment
+.env
+.env.*
+
 ## Test results
 TestResults/
 coverage/
