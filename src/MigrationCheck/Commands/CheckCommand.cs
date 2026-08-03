@@ -39,7 +39,10 @@ public sealed class CheckCommand : Command<CheckCommand.Settings>
         public bool Ci { get; init; }
     }
 
-    public override int Execute(CommandContext context, Settings settings)
+    protected override int Execute(
+        CommandContext context,
+        Settings settings,
+        CancellationToken cancellationToken)
     {
         if (settings.Ci)
             AnsiConsole.Profile.Capabilities.ColorSystem = ColorSystem.NoColors;

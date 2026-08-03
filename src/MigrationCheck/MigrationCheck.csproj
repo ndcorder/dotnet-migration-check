@@ -12,11 +12,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>efcore;migrations;database;safety;analyzer;dotnet</PackageTags>
     <Authors>dotnet-migration-check contributors</Authors>
-    <RepositoryUrl>https://github.com/dotnet-migration-check/dotnet-migration-check</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ndcorder/dotnet-migration-check</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Spectre.Console.Cli" Version="0.49.*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.*" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console.Cli" Version="0.55.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
   </ItemGroup>
 </Project>
